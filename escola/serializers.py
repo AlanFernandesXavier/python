@@ -1,8 +1,6 @@
-import re
-from datetime import datetime
 from rest_framework import serializers
 from escola.models import Estudante, Curso, Matricula
-
+from .validators import validar_cpf, validar_nome, validar_celular, validar_email, validar_data_nascimento
 
 class EstudanteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,26 +8,15 @@ class EstudanteSerializer(serializers.ModelSerializer):
         fields = ['id', 'nome', 'email', 'cpf', 'data_nascimento', 'celular']
 
     def validate(self, dados):
+        # As validações já foram feitas no models.py através dos validators, 
+        # mas podemos adicionar validações adicionais aqui se necessário.
         
-        if len(dados['cpf']) != 11:
-            raise serializers.ValidationError({'cpf': 'O CPF deve ter 11 dígitos!'})
+        # Validação extra exemplo: nome não pode ser "admin"
+        if dados['nome'].lower() == 'admin':
+            raise serializers.ValidationError({'nome': 'O nome não pode ser "admin".'})
 
-       
-        if not dados['nome'].isalpha():
-            raise serializers.ValidationError({'nome': 'O nome só pode conter letras!'})
-
-        
-        if len(dados['celular']) != 11:
-            raise serializers.ValidationError({'celular': 'O celular precisa ter 11 dígitos, incluindo o código de área! Exemplo: 8499990000'})
-
-        
-        email_regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$'
-        if not re.match(email_regex, dados['email']):
-            raise serializers.ValidationError({'email': 'Formato de e-mail inválido!'})
-        
-        if dados['data_nascimento'] > datetime.now().date():
-            raise serializers.ValidationError({'data': 'A data não pode ser uma data futura.'})
         return dados
+
 
 class CursoSerializer(serializers.ModelSerializer):
     class Meta:
